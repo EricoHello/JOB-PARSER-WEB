@@ -1,2 +1,17 @@
-dist/
+# Python
+.venv/
+__pycache__/
+*.pyc
 .env
+cron.log
+jobs_data.db
+
+# Node/React
+job-parser-ui/node_modules/
+job-parser-ui/dist/
+job-parser-ui/.vite/
+job-parser-ui/.DS_Store
+
+# Misc
+.DS_Store
+actions-runner/
