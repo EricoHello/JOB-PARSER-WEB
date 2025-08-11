@@ -1,7 +1,14 @@
-/Library/Developer/CommandLineTools/usr/bin/python3: can't open file '/Users/eric/Documents/JOB-PARSER-WEB/parse_email.py': [Errno 1] Operation not permitted
 LinkedIn: 335
 Indeed: 7
 ZipRecruiter: 146
 Total: 488
 Search: IT, Location: Seattle, WA 25 miles, Remote: On
 ('2025-08-08T21:58:01', 335, 7, 146, 488, 'IT', 'Seattle, WA', '25 miles', 'On')
+LinkedIn: 113
+Indeed: 18
+ZipRecruiter: 43
+Total: 174
+Search: IT, Location: Seattle, WA 25 miles, Remote: On
+('2025-08-10T10:10:01', 113, 18, 43, 174, 'IT', 'Seattle, WA', '25 miles', 'On')
+('2025-08-08T21:58:01', 335, 7, 146, 488, 'IT', 'Seattle, WA', '25 miles', 'On')
+

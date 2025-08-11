@@ -2,8 +2,11 @@
 import os, re, imaplib, email
 from email.header import decode_header
 from dotenv import load_dotenv
+import psycopg2
+from datetime import datetime
 
 load_dotenv()
+PG_URL = os.getenv("DATABASE_URL")
 USER = os.getenv("GMAIL_USER")
 PASS = os.getenv("GMAIL_APP_PASSWORD")
 IMAP_HOST = "imap.gmail.com"
@@ -87,26 +90,21 @@ def main():
         print(f"Total: {sum(results.values())}")
         print("Search: IT, Location: Seattle, WA 25 miles, Remote: On")
 
-        import sqlite3
-        from datetime import datetime
-
-        conn = sqlite3.connect("jobs_data.db")
-        c = conn.cursor()
-
-        c.execute("""
+        conn = psycopg2.connect(PG_URL)
+        cur = conn.cursor()
+        cur.execute("""
         CREATE TABLE IF NOT EXISTS job_counts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT,
-            linkedin INTEGER,
-            indeed INTEGER,
-            ziprecruiter INTEGER,
-            total INTEGER,
-            search TEXT,
-            location TEXT,
-            radius TEXT,
-            remote TEXT
-        )
-        """)
+        id SERIAL PRIMARY KEY,
+        timestamp TIMESTAMPTZ NOT NULL,
+        linkedin INT,
+        indeed INT,
+        ziprecruiter INT,
+        total INT,
+        search TEXT,
+        location TEXT,
+        radius TEXT,
+        remote TEXT
+        )""")
 
         current = (
             results.get("LinkedIn"),
@@ -119,24 +117,24 @@ def main():
             "On"
         )
 
-        # Select last full row to detect duplicates
-        c.execute("""
+        cur.execute("""
         SELECT linkedin, indeed, ziprecruiter, total, search, location, radius, remote
         FROM job_counts
         ORDER BY timestamp DESC
         LIMIT 1
         """)
-        last = c.fetchone()
+        last = cur.fetchone()
 
         if last == current:
             print("No change; skipping DB insert.")
         else:
-            c.execute("""
+            cur.execute("""
             INSERT INTO job_counts (timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (datetime.now().isoformat(timespec="seconds"), *current))
             conn.commit()
 
+        cur.close()
         conn.close()
 
 
@@ -147,7 +145,7 @@ if __name__ == "__main__":
 import sqlite3
 
 def read_history():
-    conn = sqlite3.connect("jobs_data.db")
+    conn = sqlite3.connect(PG_URL)
     c = conn.cursor()
     for row in c.execute("SELECT timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote FROM job_counts ORDER BY timestamp DESC"):
         print(row)

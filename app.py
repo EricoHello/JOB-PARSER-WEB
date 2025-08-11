@@ -1,5 +1,10 @@
 from flask import Flask, jsonify, render_template
-import sqlite3
+import os, psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
+PG_URL = os.getenv("DATABASE_URL")
+
 
 from flask_cors import CORS
 app = Flask(__name__)
@@ -7,17 +12,19 @@ CORS(app)
 
 
 def fetch_rows(limit=100):
-    conn = sqlite3.connect("jobs_data.db")
-    conn.row_factory = sqlite3.Row
-    rows = conn.execute("""
-        SELECT timestamp, linkedin, indeed, ziprecruiter, total,
-               search, location, radius, remote
-        FROM job_counts
-        ORDER BY timestamp DESC
-        LIMIT ?
-    """, (limit,)).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    conn = psycopg2.connect(PG_URL)
+    cur = conn.cursor()
+    cur.execute("""
+      SELECT timestamp, linkedin, indeed, ziprecruiter, total,
+             search, location, radius, remote
+      FROM job_counts
+      ORDER BY timestamp DESC
+      LIMIT %s
+    """, (limit,))
+    rows = cur.fetchall()
+    cur.close(); conn.close()
+    keys = ["timestamp","linkedin","indeed","ziprecruiter","total","search","location","radius","remote"]
+    return [dict(zip(keys, r)) for r in rows]
 
 @app.get("/")
 def index():
