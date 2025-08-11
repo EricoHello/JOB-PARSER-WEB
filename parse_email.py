@@ -137,19 +137,17 @@ def main():
         cur.close()
         conn.close()
 
-
-
-if __name__ == "__main__":
-    main()
-
-import sqlite3
-
 def read_history():
-    conn = sqlite3.connect(PG_URL)
-    c = conn.cursor()
-    for row in c.execute("SELECT timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote FROM job_counts ORDER BY timestamp DESC"):
+    conn = psycopg2.connect(PG_URL)
+    cur = conn.cursor()
+    cur.execute("SELECT timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote FROM job_counts ORDER BY timestamp DESC")
+    for row in cur.fetchall():
         print(row)
-    conn.close()
+    cur.close(); conn.close()
 
 if __name__ == "__main__":
-    read_history()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "history":
+        read_history()
+    else:
+        main()
