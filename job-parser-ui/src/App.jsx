@@ -12,7 +12,7 @@ ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement
 );
 
-const API_URL = "https://job-parser-web.onrender.com/api/history";
+const API_URL = (import.meta.env.VITE_API_URL || "http://127.0.0.1:5000") + "/api/history";
 
 export default function App() {
   const [rows, setRows] = useState([]);
