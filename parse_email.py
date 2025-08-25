@@ -118,21 +118,10 @@ def main():
         )
 
         cur.execute("""
-        SELECT linkedin, indeed, ziprecruiter, total, search, location, radius, remote
-        FROM job_counts
-        ORDER BY timestamp DESC
-        LIMIT 1
-        """)
-        last = cur.fetchone()
-
-        if last == current:
-            print("No change; skipping DB insert.")
-        else:
-            cur.execute("""
-            INSERT INTO job_counts (timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (datetime.now().isoformat(timespec="seconds"), *current))
-            conn.commit()
+        INSERT INTO job_counts (timestamp, linkedin, indeed, ziprecruiter, total, search, location, radius, remote)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (datetime.now().isoformat(timespec="seconds"), *current))
+        conn.commit()
 
         cur.close()
         conn.close()
